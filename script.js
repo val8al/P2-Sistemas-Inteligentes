@@ -1,5 +1,6 @@
+const BOARD_FEN_STRING='r7/pp5k/7p/3P2p1/8/PP5P/1R5K/8 w - - 0 36'
 var board,
-    game = new Chess('r7/pp5k/7p/3P2p1/8/PP5P/1R5K/8 w - - 0 36');
+    game = new Chess(BOARD_FEN_STRING);
 
 /*The "AI" part starts here */
 
@@ -286,7 +287,7 @@ var greySquare = function(square) {
 
 var cfg = {
     draggable: true,
-    position: 'r7/pp5k/7p/3P2p1/8/PP5P/1R5K/8 w - - 0 36',
+    position:   BOARD_FEN_STRING,
     onDragStart: onDragStart,
     onDrop: onDrop,
     onMouseoutSquare: onMouseoutSquare,
