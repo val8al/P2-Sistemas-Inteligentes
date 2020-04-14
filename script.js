@@ -1,5 +1,5 @@
 var board,
-    game = new Chess();
+    game = new Chess('r7/pp5k/7p/3P2p1/8/PP5P/1R5K/8 w - - 0 36');
 
 /*The "AI" part starts here */
 
@@ -61,6 +61,7 @@ var evaluateBoard = function (board) {
     var totalEvaluation = 0;
     for (var i = 0; i < 8; i++) {
         for (var j = 0; j < 8; j++) {
+            
             totalEvaluation = totalEvaluation + getPieceValue(board[i][j], i ,j);
         }
     }
@@ -280,12 +281,12 @@ var greySquare = function(square) {
         background = '#696969';
     }
 
-    squareEl.css('background', background);
+    //squareEl.css('background', background);
 };
 
 var cfg = {
     draggable: true,
-    position: 'start',
+    position: 'r7/pp5k/7p/3P2p1/8/PP5P/1R5K/8 w - - 0 36',
     onDragStart: onDragStart,
     onDrop: onDrop,
     onMouseoutSquare: onMouseoutSquare,
