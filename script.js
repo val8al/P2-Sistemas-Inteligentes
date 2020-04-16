@@ -7,6 +7,8 @@ FEN SAMPLES. use them on BOARD_FEN_STRING to change the board
 
 r7/pp5k/7p/3P2p1/8/PP5P/1R5K/8 w - - 0 36
 
+r7/pp5k/7p/3P2p1/8/PP5P/1R5K/8 w - - 0 36
+
 8/p7/8/8/8/8/7P/8 w - - 0 36
 
 4k3/pppppppp/8/8/8/8/PPPPPPPP/4K3 w - - 0 1
@@ -14,22 +16,33 @@ r7/pp5k/7p/3P2p1/8/PP5P/1R5K/8 w - - 0 36
 rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1 *standard,not playable
 
 */
-const BOARD_FEN_STRING='r7/pp5k/7p/3P2p1/8/PP5P/1R5K/8 w - - 0 36'
+const scenarios = [
+    '1kr5/p4p2/1p2p3/3P2pP/P3pK2/PP5P/4R3/8 w - - 0 36',//0
+    '4k3/1p4p1/p6r/8/8/8/R3PP2/4K3 w - - 0 1',//1
+    'r7/pp5k/7p/3P2p1/8/PP5P/1R5K/8 w - - 0 36',//2
+    '4k3/pppppppp/8/8/8/8/PPPPPPPP/4K3 w - - 0 1',//3
+    '1kr5/pppppppp/8/8/8/8/PPPPPPPP/1KR5 w - - 0 1'//4
+]
+const BOARD_FEN_STRING=scenarios[0]
 const   WIN_SCORE = 10000
 var victory_flag = false;
+var positionCount = 0;
+var recursionDepth = 3
+
 var board,
     game = new Chess(BOARD_FEN_STRING);
 
 /*The "AI" part starts here */
 
-var informedRoot = function(game){
+var uninformedRoot = function(game){
 
     var possibleMoves = game.ugly_moves();
     var bestMoveScore = -9999;
     var bestMoveFound = possibleMoves[0]
     for(var i = 0; i < possibleMoves.length; i++){//for every possible move
         game.ugly_move(possibleMoves[i]);
-        var boardEval = -evaluateBoard(game.board());//do it, check the outcome 
+        var boardEval = -simpleEvaluateBoard(game.board());//do it, check the outcome 
+        positionCount ++;
         if(boardEval >= bestMoveScore){
             bestMoveScore = boardEval
             bestMoveFound = possibleMoves[i]
@@ -39,13 +52,13 @@ var informedRoot = function(game){
     }
     return bestMoveFound
 }
-var uninformedRoot = function(game){
-    var highestValue = 0
-    var possibleMoves = game.ugly_moves();//movimientos posibles
+var informedRoot = function(game){
+    var highestValue = -WIN_SCORE
+    var possibleMoves = game.ugly_moves();
     var bestMove = possibleMoves[0];
     console.log("length: "+possibleMoves.length)
     for(var i = 0;i < possibleMoves.length; i++){
-        var nodeValue= -uninformedTree(possibleMoves[i],game,2,0)
+        var nodeValue= -informedTree(possibleMoves[i],game,recursionDepth,0)
         if(nodeValue > highestValue){
             console.log(nodeValue)
             bestMove = possibleMoves[i]
@@ -54,11 +67,11 @@ var uninformedRoot = function(game){
     }
     return bestMove
 }
-var uninformedTree = function(node,game,depth,value){
+var informedTree = function(node,game,depth,value){
    //console.log("current depth: "+depth+"|current value: "+depth)
-   
+   positionCount++;
    game.ugly_move(node)
-   var nodeValue = (value + evaluateBoard(game.board()))/100
+   var nodeValue = (value + evaluateBoard(game.board()))/1000
    if(depth === 0){
        game.undo()
        //console.log(nodeValue)
@@ -69,7 +82,7 @@ var uninformedTree = function(node,game,depth,value){
         var possibleMoves = game.ugly_moves();
         for(var i = 0;i < possibleMoves.length; i++){
             
-            nodeValue += uninformedTree(possibleMoves[i],game,depth,nodeValue);
+            nodeValue += informedTree(possibleMoves[i],game,depth,nodeValue);
         }
     
         game.undo();
@@ -80,9 +93,7 @@ var uninformedTree = function(node,game,depth,value){
  
     
 }
-var generateTree = function(game, black, moves, previousEval ){
 
-}
 var evaluateBoard = function (board) {
    
     var totalEvaluation = 0;
@@ -94,27 +105,58 @@ var evaluateBoard = function (board) {
     }
     return totalEvaluation;
 };
+var simpleEvaluateBoard = function (board) {
+   
+    var totalEvaluation = 0;
+    for (var i = 0; i < 8; i++) {
+        for (var j = 0; j < 8; j++) {
+            if(board[i][j] != null){
+                var pieceColor = board[i][j].color
+                if(pieceColor ==='w'){
+                    totalEvaluation = totalEvaluation 
+                    + getSimpleValue(board[i][j],pieceColor, i ,j)
+                }else{
+                    totalEvaluation = totalEvaluation 
+                    - getSimpleValue(board[i][j],pieceColor, i ,j)
+                }
+            }else{
+                return 0;
+            }
+        }
+    }
+    return totalEvaluation;
+};
 var getPieceValue = function (piece, x, y) {
     if (piece === null) {
         return 0;
     }
-    var getAbsoluteValue = function (piece, isWhite, x ,y) {
-        if (piece.type === 'p') {
-            return 400 + ( isWhite ? pawnEvalWhite[y][x] : pawnEvalBlack[y][x] );
-        } else if (piece.type === 'r') {
-            return 1000 + ( isWhite ? rookEvalWhite[y][x] : rookEvalBlack[y][x] );
-        } else if (piece.type === 'k') {
-            return 0 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
-        } else{
-            return WIN_SCORE;
-        } 
-       // throw "Unknown piece type: " + piece.type;
-    };
-
     var absoluteValue = getAbsoluteValue(piece, piece.color === 'w', x ,y);
     return piece.color === 'w' ? absoluteValue : -absoluteValue;
 };
+var getAbsoluteValue = function (piece, isWhite, x ,y) {
+    if (piece.type === 'p') {
+        return 800 + ( isWhite ? pawnEvalWhite[y][x] : pawnEvalBlack[y][x] );
+    } else if (piece.type === 'r') {
+        return 1000 + ( isWhite ? rookEvalWhite[y][x] : rookEvalBlack[y][x] );
+    } else if (piece.type === 'k') {
+        return 50 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
+    } else{
+        return WIN_SCORE;
+    } 
 
+}
+var getSimpleValue = function (piece, isWhite, x ,y) {
+    if (piece.type === 'p') {
+        return 1000 ;
+    } else if (piece.type === 'r') {
+        return 500 ;
+    } else if (piece.type === 'k') {
+        return 50 ;
+    } else{
+        return WIN_SCORE;
+    } 
+
+}
 var checkWin = function (board) {
     
     for (var i = 0; i < 8; i++) {
@@ -139,10 +181,10 @@ var pawnEvalWhite =
     [
         [100.0,  100.0,  100.0,  100.0,  100.0,  100.0,  100.0,  100.0],
         [50.0,  50.0,  50.0,  50.0,  50.0,  50.0,  50.0,  50.0],
-        [15.0,  15.0,  15.0,  15.0,  15.0,  15.0,  15.0,  15.0],
+        [35.0,  20.0,  20.0,  20.0,  20.0,  20.0,  20.0,  35.0],
         [10.0,  10.0,  10.0,  15.0,  10.0,  15.0,  10.0,  10.0],
-        [1.0,  1.0,  5.0,  5.0,  5.0,  5.0,  1.0,  1.0],
-        [0.5,  0.5,  1.0,  1.0,  1.0,  1.0,  0.5,  0.5],
+        [1.0,  2.0,  5.0,  5.0,  5.0,  5.0,  2.0,  1.0],
+        [1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1-0,  1.0],
         [-2.0,-2.0, -2.0, -2.0, -2.0, -2.0, -2.0,  -2.0],
         [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
     ];
@@ -156,17 +198,17 @@ var rookEvalWhite = [
     [  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0],
     [  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0],
     [  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0],
-    [  0.0,   0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+    [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0]
 ];
 
 var rookEvalBlack = reverseArray(rookEvalWhite);
 
 var kingEvalWhite = [
 
-    [ 3.0, 4.0, 4.0, 5.0, 5.0, 4.0, 4.0, 3.0],
-    [ 3.0, 4.0, 4.0, 5.0, 5.0, 4.0, 4.0, 3.0],
-    [ 3.0, 4.0, 4.0, 5.0, 5.0, 4.0, 4.0, 3.0],
-    [ 3.0, 4.0, 4.0, 5.0, 5.0, 4.0, 4.0, 3.0],
+    [ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0],
+    [ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0],
+    [ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0],
+    [ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0],
     [ 1.0, 1.0,   2.0, 2.0, 2.0, 2.0, 1.0, 1.0],
     [  1.0, 1.0,   2.0, 2.0, 2.0, 2.0, 1.0, 1.0],
     [  0.0,  0.0,  0.0,  1.0,  1.0,  1.0,  0.0,  0.0 ],
@@ -251,7 +293,7 @@ var makeBestMove = function () {
 };
 
 
-var positionCount;
+
 var getBestMove = function (game) {
   
     if (game.game_over()||checkWin(game.board())) {
