@@ -45,7 +45,7 @@ var uninformedRoot = function(game){
     var bestMove = possibleMoves[0];
     console.log("length: "+possibleMoves.length)
     for(var i = 0;i < possibleMoves.length; i++){
-        var nodeValue= -uninformedTree(possibleMoves[i],game,3,0)
+        var nodeValue= -uninformedTree(possibleMoves[i],game,2,0)
         if(nodeValue > highestValue){
             console.log(nodeValue)
             bestMove = possibleMoves[i]
@@ -102,9 +102,9 @@ var getPieceValue = function (piece, x, y) {
         if (piece.type === 'p') {
             return 400 + ( isWhite ? pawnEvalWhite[y][x] : pawnEvalBlack[y][x] );
         } else if (piece.type === 'r') {
-            return 500 + ( isWhite ? rookEvalWhite[y][x] : rookEvalBlack[y][x] );
+            return 1000 + ( isWhite ? rookEvalWhite[y][x] : rookEvalBlack[y][x] );
         } else if (piece.type === 'k') {
-            return 500 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
+            return 0 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
         } else{
             return WIN_SCORE;
         } 
@@ -140,7 +140,7 @@ var pawnEvalWhite =
         [100.0,  100.0,  100.0,  100.0,  100.0,  100.0,  100.0,  100.0],
         [50.0,  50.0,  50.0,  50.0,  50.0,  50.0,  50.0,  50.0],
         [15.0,  15.0,  15.0,  15.0,  15.0,  15.0,  15.0,  15.0],
-        [5.0,  5.0,  10.0,  15.0,  10.0,  15.0,  10.0,  5.0],
+        [10.0,  10.0,  10.0,  15.0,  10.0,  15.0,  10.0,  10.0],
         [1.0,  1.0,  5.0,  5.0,  5.0,  5.0,  1.0,  1.0],
         [0.5,  0.5,  1.0,  1.0,  1.0,  1.0,  0.5,  0.5],
         [-2.0,-2.0, -2.0, -2.0, -2.0, -2.0, -2.0,  -2.0],
@@ -149,14 +149,14 @@ var pawnEvalWhite =
 
 var pawnEvalBlack = reverseArray(pawnEvalWhite);
 var rookEvalWhite = [
-    [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-    [  0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5],
-    [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [  0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
+    [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0],
+    [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0],
+    [  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0],
+    [  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0],
+    [  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0],
+    [  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0],
+    [  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  1.0],
+    [  0.0,   0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
 ];
 
 var rookEvalBlack = reverseArray(rookEvalWhite);
