@@ -23,7 +23,7 @@ const scenarios = [
     '4k3/pppppppp/8/8/8/8/PPPPPPPP/4K3 w - - 0 1',//3
     '1kr5/pppppppp/8/8/8/8/PPPPPPPP/1KR5 w - - 0 1'//4
 ]
-const BOARD_FEN_STRING=scenarios[0]
+const BOARD_FEN_STRING=scenarios[2]
 const   WIN_SCORE = 10000
 var victory_flag = false;
 var positionCount = 0;
@@ -218,57 +218,6 @@ var kingEvalWhite = [
 var kingEvalBlack = reverseArray(kingEvalWhite);
 
 
-
-
-
-
-class Queue { 
-    // Array is used to implement a Queue 
-    constructor() { 
-        this.items = []; 
-    } 
-    enqueue(element) {     
-    // adding element to the queue 
-    this.items.push(element); 
-    } 
-    dequeue() { 
-        // removing element from the queue 
-        // returns underflow when called  
-        // on empty queue 
-        if(this.isEmpty()) 
-            return "Underflow"; 
-        return this.items.shift(); 
-    }     
-    front() 
-    { 
-    // returns the Front element of  
-    // the queue without removing it. 
-    if(this.isEmpty()) 
-        return "No elements in Queue"; 
-    return this.items[0]; 
-    } 
-   
-    isEmpty() 
-    { 
-        // return true if the queue is empty. 
-        return this.items.length == 0; 
-    } 
-    size() 
-    { 
-    
-    return this.items.length; 
-    } 
-
-    printQueue() 
-    { 
-    var str = ""; 
-    for(var i = 0; i < this.items.length; i++) 
-        str += this.items[i] +" "; 
-    return str; 
-    } 
-} 
-
-
 /* board visualization and games state handling.
 
 
@@ -304,7 +253,7 @@ var getBestMove = function (game) {
     var depth = parseInt($('#search-depth').find(':selected').text());
 
     var d = new Date().getTime();
-    var bestMove = uninformedRoot(game);//call for making move to AI////////////////////////////////////////
+    var bestMove = informedRoot(game);//call for making move to AI////////////////////////////////////////
     var d2 = new Date().getTime();
     var moveTime = (d2 - d);
     var positionsPerS = ( positionCount * 1000 / moveTime);
